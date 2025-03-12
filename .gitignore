@@ -1,12 +1,7 @@
 app/assets/game/extra/
 
 .settings/
-bin/
-conf/
-logs/
-null/
-project/
-public/
+
 sbt-dist/
 scripts/
 target/
