@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import structures.basic.Card;
+import structures.subcard.CardFactory;
 
 /**
  * This is a utility class that provides methods for loading the decks for each
@@ -25,15 +26,20 @@ public class OrderedCardLoader {
 		List<Card> cardsInDeck = new ArrayList<Card>(20);
 		
 		int cardID = 1;
-		for (int i =0; i<copies; i++) {
+		for (int i = 0; i < copies; i++) {
 			for (String filename : new File(cardsDIR).list()) {
 				if (filename.startsWith("1_")) {
 					// this is a deck 1 card
-					cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, cardID, Card.class));
+					Card card = CardFactory.createCardFromFilename(filename, cardID++);
+					if (card != null) {
+						cardsInDeck.add(card);
+					} else {
+						// 如果创建失败，使用基础加载方法作为后备
+						cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, cardID-1, Card.class));
+					}
 				}
 			}
 		}
-		
 		
 		return cardsInDeck;
 	}
@@ -48,16 +54,21 @@ public class OrderedCardLoader {
 		List<Card> cardsInDeck = new ArrayList<Card>(20);
 		
 		int cardID = 1;
-		for (int i =0; i<copies; i++) {
+		for (int i = 0; i < copies; i++) {
 			for (String filename : new File(cardsDIR).list()) {
 				if (filename.startsWith("2_")) {
 					// this is a deck 2 card
-					cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, cardID, Card.class));
+					Card card = CardFactory.createCardFromFilename(filename, cardID++);
+					if (card != null) {
+						cardsInDeck.add(card);
+					} else {
+						// 如果创建失败，使用基础加载方法作为后备
+						cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, cardID-1, Card.class));
+					}
 				}
 			}
 		}
 		
 		return cardsInDeck;
 	}
-	
 }

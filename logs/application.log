@@ -1,14 +1,39 @@
-2024-01-26 19:55:55,014 [INFO] from akka.event.slf4j.Slf4jLogger in application-akka.actor.default-dispatcher-6 - Slf4jLogger started
-2024-01-26 19:55:55,083 [INFO] from org.hibernate.validator.internal.util.Version in play-dev-mode-akka.actor.default-dispatcher-6 - HV000001: Hibernate Validator 6.1.0.Final
-2024-01-26 19:55:55,184 [INFO] from play.api.http.EnabledFilters in play-dev-mode-akka.actor.default-dispatcher-6 - Enabled Filters (see <https://www.playframework.com/documentation/latest/Filters>):
+2025-03-13 07:55:48,809 [INFO] from akka.event.slf4j.Slf4jLogger in application-akka.actor.default-dispatcher-7 - Slf4jLogger started
+2025-03-13 07:55:48,940 [INFO] from org.hibernate.validator.internal.util.Version in play-dev-mode-akka.actor.default-dispatcher-8 - HV000001: Hibernate Validator 6.1.0.Final
+2025-03-13 07:55:49,044 [INFO] from play.api.http.EnabledFilters in play-dev-mode-akka.actor.default-dispatcher-8 - Enabled Filters (see <https://www.playframework.com/documentation/latest/Filters>):
 
     play.filters.csrf.CSRFFilter
     play.filters.headers.SecurityHeadersFilter
     play.filters.hosts.AllowedHostsFilter
     play.filters.csrf.CSRFFilter
 
-2024-01-26 19:55:55,187 [INFO] from play.api.Play in play-dev-mode-akka.actor.default-dispatcher-6 - Application started (Dev) (no global state)
-2024-01-26 20:01:18,627 [INFO] from play.api.internal.libs.concurrent.CoordinatedShutdownSupport in pool-10-thread-15 - Starting synchronous coordinated shutdown with ServerStoppedReason reason and 35000 milliseconds timeout
-2024-01-26 20:01:18,628 [INFO] from play.core.server.AkkaHttpServer in pool-10-thread-15 - Stopping Akka HTTP server...
-2024-01-26 20:01:18,631 [INFO] from play.core.server.AkkaHttpServer in play-dev-mode-akka.actor.internal-dispatcher-5 - Terminating server binding for /0:0:0:0:0:0:0:0:9000
-2024-01-26 20:01:18,657 [INFO] from play.core.server.AkkaHttpServer in play-dev-mode-akka.actor.internal-dispatcher-5 - Running provided shutdown stop hooks
+2025-03-13 07:55:49,057 [INFO] from play.api.Play in play-dev-mode-akka.actor.default-dispatcher-8 - Application started (Dev) (no global state)
+2025-03-13 07:55:49,640 [ERROR] from akka.actor.OneForOneStrategy in application-akka.actor.default-dispatcher-8 - akka://application/user/$a/flowActor: exception during creation
+akka.actor.ActorInitializationException: akka://application/user/$a/flowActor: exception during creation
+	at akka.actor.ActorInitializationException$.apply(Actor.scala:195)
+	at akka.actor.ActorCell.create(ActorCell.scala:657)
+	at akka.actor.ActorCell.invokeAll$1(ActorCell.scala:509)
+	at akka.actor.ActorCell.systemInvoke(ActorCell.scala:531)
+	at akka.dispatch.Mailbox.processAllSystemMessages(Mailbox.scala:294)
+	at akka.dispatch.Mailbox.run(Mailbox.scala:229)
+	at akka.dispatch.Mailbox.exec(Mailbox.scala:242)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1067)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1703)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:172)
+Caused by: java.lang.reflect.InvocationTargetException: null
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+	at akka.util.Reflect$.instantiate(Reflect.scala:69)
+	at akka.actor.ArgsReflectConstructor.produce(IndirectActorProducer.scala:100)
+	at akka.actor.Props.newActor(Props.scala:226)
+	at akka.actor.ActorCell.newActor(ActorCell.scala:609)
+	at akka.actor.ActorCell.create(ActorCell.scala:635)
+	... 9 common frames omitted
+Caused by: java.lang.NullPointerException: null
+	at utils.ImageListForPreLoad.getCardImagesForPreload(ImageListForPreLoad.java:78)
+	at utils.ImageListForPreLoad.getImageListForPreLoad(ImageListForPreLoad.java:55)
+	at actors.GameActor.<init>(GameActor.java:71)
+	... 18 common frames omitted

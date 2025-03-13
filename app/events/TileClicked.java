@@ -2,13 +2,21 @@ package events;
 
 import akka.actor.ActorRef;
 import com.fasterxml.jackson.databind.JsonNode;
+import commands.BasicCommands;
 import managers.BoardManager;
 import managers.HandManager;
 import managers.TurnManager;
 import managers.UnitManager;
 import structures.GameState;
 import structures.basic.Card;
+import structures.basic.EffectAnimation;
 import structures.basic.Tile;
+import structures.subcard.SpellCard;
+import utils.BasicObjectBuilders;
+import utils.StaticConfFiles;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Handles logic when a tile is clicked.
@@ -18,6 +26,9 @@ import structures.basic.Tile;
  */
 public class TileClicked implements EventProcessor {
 
+	/**
+     * 处理生物卡牌召唤
+     */
 	public void summonUnit(ActorRef out, GameState gameState, Tile clickedTile) {
 		// 1 Ensure the clicked tile is a valid summonable location
 		if (!gameState.summonableTiles.contains(clickedTile)) {
@@ -32,8 +43,8 @@ public class TileClicked implements EventProcessor {
 			return; // Mana insufficient or other restrictions
 		}
 
-		// 3 Summon the unit
-		UnitManager.summonUnit(out, gameState, cardToPlay, clickedTile);
+		// 3 Summon the unit - 使用卡牌的onCardPlayed方法
+		cardToPlay.onCardPlayed(out, gameState, clickedTile);
 
 		// 4 Clear selection and reset tile highlights
 		gameState.selectedCard = null;
@@ -43,12 +54,52 @@ public class TileClicked implements EventProcessor {
 			tile.setHighlightStatus(out, 0);
 		}
 		gameState.summonableTiles.clear();
+		
+		// 转移回合结束后的高亮
+		TurnManager.highlightPlayer1ReadyUnits(out, gameState);
 	}
 
+	/**
+     * 处理法术卡牌施放
+     */
 	public void playSpell(ActorRef out, GameState gameState, Tile clickedTile) {
-
+	    // 确保选中了卡牌且是法术卡
+	    if (gameState.selectedCard == null || gameState.selectedCard.isCreature()) {
+	        return;
+	    }
+	    
+	    // 确保点击的格子是有效目标
+	    if (!gameState.summonableTiles.contains(clickedTile)) {
+			return;
+		}
+		
+		Card cardToPlay = gameState.selectedCard;
+		int handPos = gameState.selectedHandPosition;
+		
+		// 扣除法力值并从手牌中移除卡牌
+		if (!HandManager.deductManaAndRemoveCard(out, gameState, cardToPlay, handPos)) {
+			return;
+		}
+		
+		// 执行法术效果
+		cardToPlay.onCardPlayed(out, gameState, clickedTile);
+		
+		// 清除选择状态和高亮
+		gameState.selectedCard = null;
+		gameState.selectedHandPosition = -1;
+		
+		for (Tile tile : gameState.summonableTiles) {
+			tile.setHighlightStatus(out, 0);
+		}
+		gameState.summonableTiles.clear();
+		
+		// 转移回合结束后的高亮
+		TurnManager.highlightPlayer1ReadyUnits(out, gameState);
 	}
 
+	/**
+     * 处理单位移动
+     */
 	public void moveUnit(ActorRef out, GameState gameState, Tile clickedTile) {
 		if (!gameState.movableTiles.contains(clickedTile)) {
 			return;
@@ -62,6 +113,9 @@ public class TileClicked implements EventProcessor {
 		TurnManager.highlightPlayer1ReadyUnits(out, gameState);
 	}
 
+	/**
+     * 处理单位攻击
+     */
 	public void attackUnit(ActorRef out, GameState gameState, JsonNode message, Tile targetTile) {
 		if (targetTile == null) {
 			return;
@@ -97,7 +151,7 @@ public class TileClicked implements EventProcessor {
 		Tile clickedTile = gameState.board[tilex][tiley];
 
 		// 3. If there is a card selected, summon unit or play spell
-		if (gameState.selectedCard != null && gameState.selectedCard.isCreature()) {
+		if (gameState.selectedCard != null) {
 			if (gameState.selectedCard.isCreature()) {
 				summonUnit(out, gameState, clickedTile);
 			} else {

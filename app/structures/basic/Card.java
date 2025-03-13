@@ -1,122 +1,138 @@
 package structures.basic;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import akka.actor.ActorRef;
+import structures.GameState;
+
 /**
- * 这是卡牌的基本表示，用于玩家手牌的渲染。
- * 卡牌具有 id、名称 (cardname) 和法力消耗 (manacost)。
- * 迷你版本 (miniCard) 用于手牌显示，大版本 (bigCard) 用于点击放大查看。
- *
- * **扩展功能:**
- * - **增加 `attack` 和 `health`** 以支持单位的攻击力和生命值
- * - **确保 `getUnitConfig()` 仍然能正确获取单位配置**
- *
- * @author Dr. Richard McCreadie
+ * 卡牌的基本抽象类，定义了所有卡牌共有的属性和行为。
+ * 这个类被设计为可扩展的，允许不同类型的卡牌实现自己的特定逻辑。
  */
-public class Card {
+public abstract class Card {
 
-	int id;
-	String cardname;
-	int manacost;
+    protected int id;
+    protected String cardname;
+    protected int manacost;
+    protected MiniCard miniCard;
+    protected BigCard bigCard;
+    protected boolean isCreature;
+    protected String unitConfig;
+    
+    // 攻击力和生命值（对于生物卡有意义）
+    protected int attack;
+    protected int health;
 
-	MiniCard miniCard;
-	BigCard bigCard;
+    public Card() {
+    }
 
-	boolean isCreature;
-	String unitConfig;
+    /**
+     * 当卡牌被打出时执行的逻辑
+     * @param out WebSocket通信通道
+     * @param gameState 当前游戏状态
+     * @param tile 目标格子
+     */
+    @JsonIgnore
+    public abstract void onCardPlayed(ActorRef out, GameState gameState, Tile tile);
 
-	// **新增字段: 攻击力和生命值**
-	int attack;
-	int health;
+    /**
+     * 返回此卡牌可以选择的有效目标格子
+     * @param gameState 当前游戏状态
+     * @return 可选择的格子列表
+     */
+    @JsonIgnore
+    public abstract List<Tile> getValidTargets(GameState gameState);
 
-	public Card() {
-	}
+    /**
+     * 检查卡牌是否可以在当前游戏状态下使用
+     * @param gameState 当前游戏状态
+     * @return 如果可以使用则返回true，否则返回false
+     */
+    @JsonIgnore
+    public boolean canPlay(GameState gameState) {
+        // 默认检查法力值是否足够
+        int playerMana = gameState.currentPlayer == 1 ? 
+                         gameState.player1.getMana() : 
+                         gameState.player2.getMana();
+        return playerMana >= manacost && !getValidTargets(gameState).isEmpty();
+    }
 
-	public Card(int id, String cardname, int manacost, MiniCard miniCard, BigCard bigCard, boolean isCreature,
-			String unitConfig, int attack, int health) {
-		this.id = id;
-		this.cardname = cardname;
-		this.manacost = manacost;
-		this.miniCard = miniCard;
-		this.bigCard = bigCard;
-		this.isCreature = isCreature;
-		this.unitConfig = unitConfig;
-		this.attack = attack;
-		this.health = health;
-	}
+    // Getters and Setters
+    public int getId() {
+        return id;
+    }
 
-	public int getId() {
-		return id;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public String getCardname() {
+        return cardname;
+    }
 
-	public String getCardname() {
-		return cardname;
-	}
+    public void setCardname(String cardname) {
+        this.cardname = cardname;
+    }
 
-	public void setCardname(String cardname) {
-		this.cardname = cardname;
-	}
+    public int getManacost() {
+        return manacost;
+    }
 
-	public int getManacost() {
-		return manacost;
-	}
+    public void setManacost(int manacost) {
+        this.manacost = manacost;
+    }
 
-	public void setManacost(int manacost) {
-		this.manacost = manacost;
-	}
+    public MiniCard getMiniCard() {
+        return miniCard;
+    }
 
-	public MiniCard getMiniCard() {
-		return miniCard;
-	}
+    public void setMiniCard(MiniCard miniCard) {
+        this.miniCard = miniCard;
+    }
 
-	public void setMiniCard(MiniCard miniCard) {
-		this.miniCard = miniCard;
-	}
+    public BigCard getBigCard() {
+        return bigCard;
+    }
 
-	public BigCard getBigCard() {
-		return bigCard;
-	}
+    public void setBigCard(BigCard bigCard) {
+        this.bigCard = bigCard;
+    }
 
-	public void setBigCard(BigCard bigCard) {
-		this.bigCard = bigCard;
-	}
+    public boolean isCreature() {
+        return isCreature;
+    }
 
-	public boolean getIsCreature() {
-		return isCreature;
-	}
+    public boolean getIsCreature() {
+        return isCreature;
+    }
 
-	public void setIsCreature(boolean isCreature) {
-		this.isCreature = isCreature;
-	}
+    public void setIsCreature(boolean isCreature) {
+        this.isCreature = isCreature;
+    }
 
-	public boolean isCreature() {
-		return isCreature;
-	}
+    public String getUnitConfig() {
+        return unitConfig;
+    }
 
-	public String getUnitConfig() {
-		return unitConfig;
-	}
+    public void setUnitConfig(String unitConfig) {
+        this.unitConfig = unitConfig;
+    }
 
-	public void setUnitConfig(String unitConfig) {
-		this.unitConfig = unitConfig;
-	}
+    public int getAttack() {
+        return attack;
+    }
 
-	// **新增 getter 和 setter**
-	public int getAttack() {
-		return attack;
-	}
+    public void setAttack(int attack) {
+        this.attack = attack;
+    }
 
-	public void setAttack(int attack) {
-		this.attack = attack;
-	}
+    public int getHealth() {
+        return health;
+    }
 
-	public int getHealth() {
-		return health;
-	}
-
-	public void setHealth(int health) {
-		this.health = health;
-	}
+    public void setHealth(int health) {
+        this.health = health;
+    }
 }
